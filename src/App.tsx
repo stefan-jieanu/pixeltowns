@@ -3,6 +3,7 @@ import { Canvas, ThreeElements, useFrame, useThree } from '@react-three/fiber'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { Mesh, Vector3 } from 'three'
 import { OrthographicCamera } from '@react-three/drei'
+import { Bloom, DepthOfField, EffectComposer, Noise, Vignette } from '@react-three/postprocessing'
 
 function App() {
   function Box(props: ThreeElements['mesh']) {
@@ -25,11 +26,16 @@ function App() {
   }
 
   const positions = [[-1, 0, 0], [1, 0, 0], [2, 0, 0], [-2, 0, 0], [1, 0, 1], [-1, 0, -1], [0, 0, 0]]
+  const [eff, setEff] = useState(true)
 
 
   return (
     <>
-      <Canvas>
+      <div className='absolute p-4 z-10'>
+        <button className='p-4 border-2 rounded-md hover:bg-zinc-500 hover:text-white cursor-pointer'
+          onClick={() => setEff(!eff)}>Effects</button>
+      </div>
+      <Canvas className='relative z-0'>
         <OrthographicCamera
           makeDefault
           position={[0, 0, 10]}
@@ -45,6 +51,19 @@ function App() {
         {positions.map((coords, i) =>
           (<Box position={[coords[0], coords[1], coords[2]]} key={i} />)
         )}
+        <EffectComposer>
+          {eff ?
+            <>
+              <DepthOfField
+                focusDistance={0}
+                focalLength={0.02}
+                bokehScale={2}
+                height={480}
+              />
+              <Vignette eskil={false} offset={0.1} darkness={1.1} />
+            </> : <></>
+          }
+        </EffectComposer>
         {/* <Box position={[-1.2, 0, 0]} />
         <Box position={[1.2, 0, 0]} /> */}
       </Canvas>
